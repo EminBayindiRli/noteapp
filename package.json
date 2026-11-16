@@ -10,7 +10,8 @@
     "dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV=1 electron .\"",
     "build": "vite build",
     "start": "vite build && electron .",
-    "dist": "vite build && electron-builder --win"
+    "dist": "vite build && electron-builder --win",
+    "screenshots": "vite build && electron scripts/screenshots.cjs"
   },
   "build": {
     "appId": "com.emin.noteapp",

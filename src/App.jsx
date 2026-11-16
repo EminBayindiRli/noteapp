@@ -36,7 +36,10 @@ const PAGES = [
 
 export default function App() {
   const { data, setSetting } = useStore()
-  const [page, setPage] = useState('dashboard')
+  const [page, setPage] = useState(() => {
+    const h = window.location.hash.slice(1)
+    return PAGES.some((p) => p.id === h) || h === 'settings' ? h : 'dashboard'
+  })
   const [focus, setFocus] = useState(null) // başka sayfadan belirli bir kayda gitmek için
 
   const dark = data?.settings.theme === 'dark'
