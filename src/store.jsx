@@ -23,6 +23,7 @@ const normalize = (loaded) => ({
 
 export function StoreProvider({ children }) {
   const [data, setData] = useState(null)
+  const [restored, setRestored] = useState(false)
   const timer = useRef(null)
   const latest = useRef(null)
 
@@ -30,7 +31,11 @@ export function StoreProvider({ children }) {
     ;(async () => {
       let loaded = null
       try {
-        loaded = window.api ? await window.api.load() : JSON.parse(localStorage.getItem(LS_KEY) || 'null')
+        if (window.api) {
+          const res = await window.api.load()
+          loaded = res?.data ?? null
+          if (res?.restored) setRestored(true)
+        } else loaded = JSON.parse(localStorage.getItem(LS_KEY) || 'null')
       } catch {}
       setData(normalize(loaded))
     })()
@@ -48,7 +53,13 @@ export function StoreProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    const flush = () => latest.current && write(latest.current)
+    // Kapanışta bekleyen son değişikliği senkron yaz
+    const flush = () => {
+      if (!latest.current) return
+      clearTimeout(timer.current)
+      if (window.api) window.api.saveSync(latest.current)
+      else write(latest.current)
+    }
     window.addEventListener('beforeunload', flush)
     return () => window.removeEventListener('beforeunload', flush)
   }, [])
@@ -65,6 +76,8 @@ export function StoreProvider({ children }) {
 
   const api = {
     data,
+    restored,
+    dismissRestored: () => setRestored(false),
     update,
     replaceAll: (d) => update(() => normalize(d)),
     add: (col, item) => {

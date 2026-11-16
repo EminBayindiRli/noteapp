@@ -1,7 +1,7 @@
 {
   "name": "noteapp",
   "productName": "NoteApp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Kişisel iş ve hayat takip uygulaması",
   "author": "Emin",
   "private": true,

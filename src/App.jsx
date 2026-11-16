@@ -2,7 +2,11 @@ import { AnimatePresence, motion } from 'framer-motion'
 import {
   Briefcase,
   CheckSquare,
+  Cloud,
+  CloudOff,
   LayoutDashboard,
+  ShieldCheck,
+  X,
   Moon,
   NotebookPen,
   Repeat,
@@ -35,7 +39,7 @@ const PAGES = [
 ]
 
 export default function App() {
-  const { data, setSetting } = useStore()
+  const { data, setSetting, restored, dismissRestored } = useStore()
   const [page, setPage] = useState(() => {
     const h = window.location.hash.slice(1)
     return PAGES.some((p) => p.id === h) || h === 'settings' ? h : 'dashboard'
@@ -97,6 +101,7 @@ export default function App() {
           ))}
         </nav>
 
+        <BackupIndicator onClick={() => go('settings')} />
         <div className="p-2.5 space-y-0.5 border-t border-line">
           <NavItem item={{ id: 'settings', label: 'Ayarlar & yedek', icon: SettingsIcon }} active={page === 'settings'} onClick={() => go('settings')} />
           <button
@@ -122,6 +127,22 @@ export default function App() {
       {/* İçerik */}
       <main className="flex-1 min-w-0 flex flex-col">
         <div className="drag h-10 shrink-0" />
+        <AnimatePresence>
+          {restored && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mx-10 mb-3 flex items-center gap-3 rounded-xl bg-ok-soft px-4 py-2.5 text-[13px]"
+            >
+              <ShieldCheck size={16} className="text-ok" />
+              <span className="flex-1">Bu bilgisayarda veri yoktu; verilerin yedek klasöründen geri yüklendi.</span>
+              <button onClick={dismissRestored} className="text-muted hover:text-fg" aria-label="Kapat">
+                <X size={14} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="flex-1 min-h-0 relative">
           <AnimatePresence mode="wait">
             <motion.div
@@ -138,6 +159,30 @@ export default function App() {
         </div>
       </main>
     </div>
+  )
+}
+
+function BackupIndicator({ onClick }) {
+  const [st, setSt] = useState(null)
+  useEffect(() => {
+    if (!window.api?.backup) return
+    const get = () => window.api.backup.status().then(setSt)
+    get()
+    const t = setInterval(get, 15000)
+    return () => clearInterval(t)
+  }, [])
+  if (!st) return null
+  const ok = st.dir && !st.error
+  return (
+    <button
+      onClick={onClick}
+      title={ok ? st.dir : 'Ayarlar → Otomatik yedek'}
+      className="mx-2.5 mb-2 h-8 px-2.5 flex items-center gap-2 rounded-lg text-[11.5px] text-muted hover:bg-surface-2/70 transition-colors"
+    >
+      <span className={cn('size-1.5 rounded-full', ok ? 'bg-ok' : st.dir ? 'bg-bad' : 'bg-warn')} />
+      {ok ? (st.isOneDrive ? 'OneDrive yedeği açık' : 'Otomatik yedek açık') : st.dir ? 'Yedek hatası' : 'Yedek kapalı'}
+      {ok ? <Cloud size={13} className="ml-auto" /> : <CloudOff size={13} className="ml-auto" />}
+    </button>
   )
 }
 

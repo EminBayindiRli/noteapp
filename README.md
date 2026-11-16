@@ -40,7 +40,8 @@ Web sitesi, uygulama ve yapay zekâ çözümleri satan biri olarak işlerim beş
 | 💰 **Para** | Gelir / harcama kaydı, aylık özet, son 6 ay grafiği ve kategori dağılımı. Müşteri tahsilatları otomatik olarak gelire işlenir. |
 | 🎯 **Müşteri arayışı** | Excel gibi doğrudan hücreye yazılan aday tablosu: durum hunisi, takip tarihleri, sıralama, arama, **Excel'e (CSV) aktarma** ve tek tıkla **müşteriye çevirme**. |
 | 📝 **Notlar** | Sabitlenebilir, aranabilir serbest notlar. |
-| ⚙️ **Ayarlar** | Açık / koyu tema, yedeği dışa aktarma ve geri yükleme. |
+| ☁️ **Otomatik yedek** | Her değişiklik OneDrive (ya da seçtiğin herhangi bir klasör / USB) içine de yazılır. Bilgisayar bozulsa bile verin kaybolmaz. |
+| ⚙️ **Ayarlar** | Açık / koyu tema, yedek klasörü seçimi, yedeği dışa aktarma ve geri yükleme. |
 
 ## Ekran görüntüleri
 
@@ -62,8 +63,9 @@ Web sitesi, uygulama ve yapay zekâ çözümleri satan biri olarak işlerim beş
 
 ### Hazır kurulum dosyasıyla
 
-1. Kaynak koddan `npm run dist` çalıştır; `release/NoteApp-Setup-x.x.x.exe` oluşur.
+1. [Releases](https://github.com/EminBayindiRli/noteapp/releases/latest) sayfasından `NoteApp-Setup-x.x.x.exe` dosyasını indir.
 2. Çalıştır, kurulum klasörünü seç. Masaüstüne ve Başlat menüsüne kısayol eklenir.
+3. Yeni sürüm çıktığında aynı şekilde üzerine kurman yeterli; verilerin korunur.
 
 > İmzasız bir uygulama olduğu için Windows SmartScreen uyarı verebilir: **Ek bilgi → Yine de çalıştır**.
 
@@ -100,11 +102,28 @@ npm run dev        # geliştirme modu (canlı yenileme)
 Her değişiklik anında otomatik kaydedilir:
 
 ```
-%APPDATA%\NoteApp\noteapp-data.json      ← tüm verin
-%APPDATA%\NoteApp\backups\               ← günlük otomatik yedekler (son 30 gün)
+%APPDATA%\NoteApp\noteapp-data.json        ← tüm verin
+%APPDATA%\NoteApp\backups\                 ← günlük yerel yedekler (son 30 gün)
+
+OneDrive\NoteApp Yedek\noteapp-data.json   ← her değişiklikte güncellenen bulut kopyası
+OneDrive\NoteApp Yedek\gunluk\             ← günlük bulut yedekleri (son 30 gün)
 ```
 
+### Bilgisayarım bozulursa?
+
+Bilgisayarında OneDrive varsa NoteApp ilk açılışta yedeklemeyi **kendiliğinden** açar; uygulama yine internetsiz çalışır, buluta taşıma işini Windows'un OneDrive'ı yapar. İstersen **Ayarlar → Otomatik yedek** bölümünden Google Drive, Dropbox ya da bir USB bellek klasörü seçebilirsin. Kenar çubuğundaki yeşil nokta yedeğin çalıştığını gösterir.
+
+Yeni bilgisayarda:
+
+1. OneDrive'a aynı hesapla giriş yap ve eşitlemenin bitmesini bekle.
+2. NoteApp'i kur ve aç. Bu bilgisayarda veri yoksa yedek klasöründen **otomatik geri yüklenir**.
+3. Gelmediyse **Ayarlar → Yedekten geri yükle** ile `NoteApp Yedek\noteapp-data.json` (ya da `gunluk\` içinden istediğin günün dosyasını) seç.
+
+### Güvenlik önlemleri
+
 - Kayıt **atomik** yapılır (önce geçici dosyaya yazılır, sonra yer değiştirilir), böylece elektrik kesintisinde dosya bozulmaz.
+- Pencere kapanırken bekleyen son değişiklik de anında diske yazılır.
+- Aynı anda iki NoteApp penceresi açılamaz, böylece iki pencere birbirinin kaydını ezemez.
 - **Ayarlar → Yedeği dışa aktar** ile tek bir JSON dosyası alıp başka bir bilgisayara taşıyabilirsin.
 - Bu depo yalnızca **kodu** içerir; kişisel verilerin asla GitHub'a gönderilmez.
 
